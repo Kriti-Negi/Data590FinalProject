@@ -143,15 +143,8 @@ function bindInspectorEvents() {
   document.getElementById("rotation-z").addEventListener("input", e => {
     selectedNode.rotation[2] = parseFloat(e.target.value);
   });
-  document.getElementById("given").addEventListener("change", e => {
-    selectedNode.given = parseFloat(e.target.value);
-    console.log(selectedNode.given);
-  });
   document.getElementById("attachTo").addEventListener("change", e => {
     selectedNode.attachTo = parseFloat(e.target.value);
-  });
-  document.getElementById("attachToAll").addEventListener("change", e => {
-    selectedNode.attachToAll = e.target.value;
   });
 
   updateCubeList();
