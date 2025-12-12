@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MR Engine</title>
+
+    <style>
+
+      body, html {
+  background: transparent !important;
+}
+
+      #ui-layout {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 260px 1fr 260px;
+      }
+
+      #left-panel,
+      #right-panel {
+        background: #1d1d1d;
+        color: #eee;
+        padding: 15px;
+        font-family: sans-serif;
+        overflow-y: auto;
+        box-sizing: border-box;
+      }
+
+      #center-panel {
+        position: relative;
+        background: black;
+      }
+
+      #xr-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      h3 {
+        margin-top: 0;
+        font-size: 20px;
+      }
+
+      #cube-list li {
+        margin: 8px 0;
+        padding: 6px 8px;
+        background: #333;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      #cube-list li.selected {
+        background: #555;
+      }
+
+      input[type="number"] {
+        width: 60px;
+        margin: 3px;
+      }
+
+      button {
+        margin: 4px 0;
+        padding: 6px 8px;
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #666;
+      }
+    </style>
+  </head>
+
+  <body style="margin:0; overflow:hidden;">
+    
+    <div id="ui-layout">
+
+      <div id="left-panel">
+        <h3>Objects</h3>
+        <button id="start-btn">Start MR</button>
+        <button id="add-cube-btn">Add Cube</button>
+        <button id="delete-cube-btn">Delete Cube</button>
+
+        <ul id="cube-list"></ul>
+      </div>
+
+      <div id="center-panel">
+        <canvas id="xr-canvas"></canvas>
+      </div>
+
+      <div id="right-panel">
+        <h3>Inspector</h3>
+        <div id="inspector">No object selected</div>
+      </div>
+
+    </div>
+
+    <script type="module" src="/src/index.js"></script>
+  </body>
+</html>
