@@ -1,7 +1,7 @@
 import { Scene, Node } from './Scene.js';
 import { CubeMesh } from './Mesh.js';
 import { Renderer } from '../rendering/Renderer.js';
-
+import { PlaneController } from '../enviornment/PlaneController.js';
 
 export class Engine {
   constructor(canvas) {
@@ -16,7 +16,11 @@ export class Engine {
     this.lastTime = null; 
     this.logs = [];         
     //default cube
-    this.placeCube([0, 1.6, -3]);
+    //this.planeController = new PlaneController();
+    //
+    this.hitTestSource = null;
+    this.cubePlaced = false;
+    
   }
 
   //for xr
@@ -33,7 +37,7 @@ export class Engine {
     let session;
     try {
       session = await navigator.xr.requestSession(mode, {
-        requiredFeatures: ['local-floor'],
+        requiredFeatures: ["hit-test", "local-floor"],
       });
     } catch (e) {
       console.warn('XR request failed, falling back', e);
@@ -55,8 +59,13 @@ export class Engine {
 
     const baseLayer = new XRWebGLLayer(this.xrSession, this.gl);
     this.xrSession.updateRenderState({ baseLayer });
-
     this.xrRefSpace = await this.xrSession.requestReferenceSpace('local-floor');
+    // session requests for hit test
+    const viewerSpace = await xrSession.requestReferenceSpace("viewer");
+    this.hitTestSource = await xrSession.requestHitTestSource({
+      space: viewerSpace
+    });
+
 
     this.lastTime = null;
     this.xrSession.requestAnimationFrame(this.onXRFrame.bind(this));
@@ -79,6 +88,21 @@ export class Engine {
     if (this.lastTime == null) this.lastTime = time;
     const dt = (time - this.lastTime) / 1000.0;
     this.lastTime = time;
+    //this.planeController.processMeshes(time, frame, this.renderer);
+    if(!this.cubePlaced){
+      const hits = frame.getHitTestResults(this.hitTestSource);
+      if (hits.length > 0) {
+        const hitPose = hits[0].getPose(this.xrRefSpace);
+        const m = hitPose.transform.matrix;
+
+        // place cube slightly above the surface
+        const pos = [m[12], m[13] + 0.05, m[14]];
+        this.placeCube(pos);
+        this.cubePlaced = true;
+
+      }
+    }
+
     this.update(dt);
 
     for (const view of pose.views) {
@@ -140,6 +164,7 @@ export class Engine {
       canvas.height = height;
       this.gl.viewport(0, 0, width, height);
     }
+    
   }
 
 
@@ -156,7 +181,11 @@ export class Engine {
 
   //place cube
   placeCube(position = [0, 1.6, -3], ScriptClass = null) {
-    const node = new Node({ position, scale: [1, 1, 1] });
+    // get position of mesh
+    console.log("dsdfsdf");
+    //position = this.planeController.getSomePlanePosition();
+
+    const node = new Node({ position, scale: [0.1, 0.1, 0.1] });
     node.addComponent(new CubeMesh());
 
     
