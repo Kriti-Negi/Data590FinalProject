@@ -64,6 +64,9 @@ function updateInspectorPanel() {
   const pos = selectedNode.position;
   const scale = selectedNode.scale;
   const rotation = selectedNode.rotation;
+  const given = selectedNode.given;
+  const attachTo = selectedNode.attachTo;
+  const attachToAll = selectedNode.attachToAll;
 
   inspector.innerHTML = `
       <h4>Transform</h4>
@@ -96,6 +99,12 @@ function updateInspectorPanel() {
         <input id="rotation-y" type="number" step="0.1" value="${rotation[1]}" style="width:70px;">
         <label style="width:20px; display:inline-block;">Z:</label>
         <input id="rotation-z" type="number" step="0.1" value="${rotation[2]}" style="width:70px;">
+      </div>
+
+        <select id="attachTo" name="given" value="${attachTo}">
+          <option value="0" ${attachTo == 0 ? "selected" : ""}>Largest/Farthest</option>
+          <option value="1" ${attachTo == 1 ? "selected" : ""}>Closest/Smallest</option>
+        </select><br>    
       </div>
   `;
 
@@ -134,6 +143,16 @@ function bindInspectorEvents() {
   document.getElementById("rotation-z").addEventListener("input", e => {
     selectedNode.rotation[2] = parseFloat(e.target.value);
   });
+  document.getElementById("given").addEventListener("change", e => {
+    selectedNode.given = parseFloat(e.target.value);
+    console.log(selectedNode.given);
+  });
+  document.getElementById("attachTo").addEventListener("change", e => {
+    selectedNode.attachTo = parseFloat(e.target.value);
+  });
+  document.getElementById("attachToAll").addEventListener("change", e => {
+    selectedNode.attachToAll = e.target.value;
+  });
 
   updateCubeList();
 }
@@ -161,7 +180,7 @@ deleteCubeBtn.addEventListener("click", () => {
 });
 
 function startFallbackRender() {
-  gl = canvas.getContext("webgl");
+  gl = canvas.getContext("webgl", { xrCompatible: true, alpha: true });
   renderer = new Renderer(gl);
   initScene();
 
@@ -186,10 +205,10 @@ async function initXR() {
     return;
   }
 
-  const supported = await navigator.xr.isSessionSupported("immersive-vr");
+  const supported = await navigator.xr.isSessionSupported("immersive-ar");
   if (!supported) return startFallbackRender();
 
-  xrSession = await navigator.xr.requestSession("immersive-vr", {
+  xrSession = await navigator.xr.requestSession("immersive-ar", {
     requiredFeatures: ["local-floor"]
   });
 
@@ -200,7 +219,7 @@ async function initXR() {
   renderer = new Renderer(gl);
   initScene();
 
-  const baseLayer = new XRWebGLLayer(xrSession, gl);
+  const baseLayer = new XRWebGLLayer(xrSession, gl, { alpha: true });
   xrSession.updateRenderState({ baseLayer });
 
   xrRefSpace = await xrSession.requestReferenceSpace("local-floor");
@@ -218,6 +237,7 @@ function onXRFrame(time, frame) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, glLayer.framebuffer);
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.clearColor(0, 0, 0, 0);
 
   for (const view of pose.views) {
     const viewport = glLayer.getViewport(view);
