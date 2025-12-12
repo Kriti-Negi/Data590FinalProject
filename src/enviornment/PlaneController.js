@@ -19,31 +19,37 @@ export class PlaneController {
   }
 
   processMeshes(timestamp, frame, renderer) {
-    const referenceSpace = renderer.xr.getReferenceSpace();
+    //const referenceSpace = renderer.xr.getReferenceSpace();
+    /*
+    const referenceSpace = renderer.engine.xrRefSpace;
+
     if (!frame.detectedMeshes) {
         return;
     }
-    allMeshes.forEach((prevTimeStamp, mesh) => {
+    this.allMeshes.forEach((prevTimeStamp, mesh) => {
         if (!frame.detectedMeshes.has(mesh)) {
-            allMeshes.delete(mesh);
+            this.allMeshes.delete(mesh);
         }
     });
     frame.detectedMeshes.forEach(mesh => {
       const meshPose = frame.getPose(mesh.meshSpace, referenceSpace);
       const matrix = meshPose.transform.matrix;
-      if (allMeshes.has(mesh)) {
-            const prev = allMeshes.get(mesh);
+      if (this.allMeshes.has(mesh) && meshPose != null) {
+            const prev = this.allMeshes.get(mesh);
+            
             if (prev.timestamp < mesh.lastChangedTime) {
                 prev.timestamp = mesh.lastChangedTime;
                 prev.position = [ matrix[12], matrix[13], matrix[14] ];
             }
         } else {
           
-          allMeshes.set(mesh, {
+          this.allMeshes.set(mesh, {
                 timestamp: mesh.lastChangedTime,
                 position: [ matrix[12], matrix[13], matrix[14] ]
             });
         }
-    });
+    });*/
+
+
   }
 }

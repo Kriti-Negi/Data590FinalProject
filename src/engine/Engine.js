@@ -20,6 +20,9 @@ export class Engine {
     //
     this.hitTestSource = null;
     this.cubePlaced = false;
+
+    this.farthestHit = null;
+    this.closestHit = null;
     
   }
 
@@ -61,6 +64,7 @@ export class Engine {
     this.xrSession.updateRenderState({ baseLayer });
     this.xrRefSpace = await this.xrSession.requestReferenceSpace('local-floor');
     // session requests for hit test
+
     const viewerSpace = await xrSession.requestReferenceSpace("viewer");
     this.hitTestSource = await xrSession.requestHitTestSource({
       space: viewerSpace
@@ -69,6 +73,16 @@ export class Engine {
 
     this.lastTime = null;
     this.xrSession.requestAnimationFrame(this.onXRFrame.bind(this));
+  }
+
+  getPositionFromHit(hit){
+    const hitPose = hit.getPose(this.xrRefSpace);
+    const m = hitPose.transform.matrix;
+    return [m[12], m[13] + 0.05, m[14]];
+  }
+
+  getDistance(pos){
+    return Math.sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2]*pos[2])
   }
 
   //xr frame
@@ -91,13 +105,25 @@ export class Engine {
     //this.planeController.processMeshes(time, frame, this.renderer);
     if(!this.cubePlaced){
       const hits = frame.getHitTestResults(this.hitTestSource);
+      
       if (hits.length > 0) {
-        const hitPose = hits[0].getPose(this.xrRefSpace);
-        const m = hitPose.transform.matrix;
+        this.closestHit = this.getPositionFromHit(hits[0]);
+        this.farthestHit = this.getPositionFromHit(hits[0]);
+        
+        // get pos of closest one
+        // get pos of farthest 
 
-        // place cube slightly above the surface
-        const pos = [m[12], m[13] + 0.05, m[14]];
-        this.placeCube(pos);
+        for(var i = 0; i < hits.length; i++){
+          var hitPos = this.getPositionFromHit(hits[i]);
+          if(this.getDistance(hitPos) < this.getDistance(this.closestHit)){
+            this.closestHit = this.getPositionFromHit(hits[i]);
+          }
+          if(this.getDistance(hitPos) > this.getDistance(this.farthestHit)){
+            this.farthestHit = this.getPositionFromHit(hits[i]);
+          }
+        }
+        
+        //this.placeCube(hits[0]);
         this.cubePlaced = true;
 
       }
@@ -188,13 +214,20 @@ export class Engine {
     const node = new Node({ position, scale: [0.1, 0.1, 0.1] });
     node.addComponent(new CubeMesh());
 
-    
     if (ScriptClass) {
       const script = new ScriptClass();
       node.addComponent(script);
       if (typeof script.start === 'function') {
         script.start();
       }
+    }
+
+    if(node.attachTo == 0){
+      node.position = this.closestHit;
+    }else if(node.attachTo == 1){
+      node.position = this.farthestHit;
+    }else{
+      node.position = this.farthestHit;
     }
 
     this.scene.addNode(node);

@@ -26,6 +26,7 @@ export class Node {
     this.scale = scale;
     this.rotation = rotation;
     this.components = [];
+    this.attachTo = 0;
   }
 
   addComponent(c) {
