@@ -9,6 +9,7 @@ const inspector = document.getElementById("inspector");
 //button
 const addCubeBtn = document.getElementById("add-cube-btn");
 const deleteCubeBtn = document.getElementById("delete-cube-btn");
+const startMRBtn = document.getElementById("start-btn");
 
 let xrSession = null;
 let xrRefSpace = null;
@@ -62,20 +63,40 @@ function updateInspectorPanel() {
 
   const pos = selectedNode.position;
   const scale = selectedNode.scale;
+  const rotation = selectedNode.rotation;
 
   inspector.innerHTML = `
       <h4>Transform</h4>
 
       <label>Position</label><br>
-      <input id="pos-x" type="number" step="0.1" value="${pos[0]}">
-      <input id="pos-y" type="number" step="0.1" value="${pos[1]}">
-      <input id="pos-z" type="number" step="0.1" value="${pos[2]}">
-      <br><br>
+      <div style="margin-bottom: 10px;">
+        <label sytle="width:20px; display:inline-block;">X:</label>
+        <input id="pos-x" type="number" step="0.1" value="${pos[0]}">
+        <label sytle="width:20px; display:inline-block;">Y:</label>
+        <input id="pos-y" type="number" step="0.1" value="${pos[1]}">
+        <label sytle="width:20px; display:inline-block;">Z:</label>
+        <input id="pos-z" type="number" step="0.1" value="${pos[2]}">
+      </div>
 
       <label>Scale</label><br>
-      <input id="scale-x" type="number" step="0.1" value="${scale[0]}">
-      <input id="scale-y" type="number" step="0.1" value="${scale[1]}">
-      <input id="scale-z" type="number" step="0.1" value="${scale[2]}">
+      <div>
+        <label style="width:20px; display:inline-block;">X:</label>
+        <input id="scale-x" type="number" step="0.1" value="${scale[0]}" style="width:70px;">
+        <label style="width:20px; display:inline-block;">Y:</label>
+        <input id="scale-y" type="number" step="0.1" value="${scale[1]}" style="width:70px;">
+        <label style="width:20px; display:inline-block;">Z:</label>
+        <input id="scale-z" type="number" step="0.1" value="${scale[2]}" style="width:70px;">
+      </div>
+
+      <label>Rotation</label><br>
+      <div>
+        <label style="width:20px; display:inline-block;">X:</label>
+        <input id="rotation-x" type="number" step="0.1" value="${rotation[0]}" style="width:70px;">
+        <label style="width:20px; display:inline-block;">Y:</label>
+        <input id="rotation-y" type="number" step="0.1" value="${rotation[1]}" style="width:70px;">
+        <label style="width:20px; display:inline-block;">Z:</label>
+        <input id="rotation-z" type="number" step="0.1" value="${rotation[2]}" style="width:70px;">
+      </div>
   `;
 
   bindInspectorEvents();
@@ -102,6 +123,16 @@ function bindInspectorEvents() {
   });
   document.getElementById("scale-z").addEventListener("input", e => {
     selectedNode.scale[2] = parseFloat(e.target.value);
+  });
+
+  document.getElementById("rotation-x").addEventListener("input", e => {
+    selectedNode.rotation[0] = parseFloat(e.target.value);
+  });
+  document.getElementById("rotation-y").addEventListener("input", e => {
+    selectedNode.rotation[1] = parseFloat(e.target.value);
+  });
+  document.getElementById("rotation-z").addEventListener("input", e => {
+    selectedNode.rotation[2] = parseFloat(e.target.value);
   });
 
   updateCubeList();
@@ -164,6 +195,7 @@ async function initXR() {
 
   gl = canvas.getContext("webgl", { xrCompatible: true });
   await gl.makeXRCompatible();
+
 
   renderer = new Renderer(gl);
   initScene();
@@ -249,6 +281,6 @@ function resizeCanvasToDisplaySize(canvas) {
 }
 
 //start
-document.body.addEventListener("keydown", (e)=>{
-  if(e.key === "x") initXR();
+startMRBtn.addEventListener("click", () => {
+  initXR();
 });
